@@ -1,8 +1,12 @@
 import * as React from "react";
 import {useEffect, useState} from "react";
 import pathsByDistrict from "./1974paths.tsx";
-import resultsF from "./1974results.ts";
+import results1974 from "./1974results.ts";
+import results1976 from "./1976results.ts";
 import {FaArrowDown, FaArrowLeft, FaArrowRight, FaArrowUp, FaMinus, FaPlus} from "react-icons/fa";
+import {ImEnter} from "react-icons/im";
+import {GiTexas} from "react-icons/gi";
+import Selector from "./components/Selector.tsx";
 
 const useWindowDimensions = () => {
     const [windowDimensions, setWindowDimensions] = useState({
@@ -34,13 +38,15 @@ const D = ({path, results }:pD) =>{
 
     const bgColor = ((results[0] - results[1] <= 0) ? ( "#ff7373"):("#6f9bff"))
     const [bgOver,setBgOver] = useState( false )
+
+    const [isDisplay , setIsDisplay] = useState(false)
     const handleMouseEnter = ()=>{
-        console.log("in")
+        setIsDisplay(true)
         setBgOver(true)
     }
 
     const handleMouseLeave = ()=>{
-        console.log("out")
+        setIsDisplay(false)
         setBgOver(false)
     }
 
@@ -48,34 +54,42 @@ const D = ({path, results }:pD) =>{
 
 
     return(
-        <path onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
+        <>
+            <path onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
+                  fillRule="evenodd"
+                  d={path}
+                  vectorEffect="none"
+                  id="d1"
+                  style={{
+                      stroke: ("#000000"),
+                      strokeWidth: 1,
+                      strokeMiterlimit: 4,
+                      strokeDasharray: "none",
+                      strokeOpacity: 1,
+                      fill: !bgOver ? bgColor : ("#252525") ,
+                      fillOpacity:  !bgOver ? (1- (opacity < 0 ? opacity * -1 : opacity) + 0.5) : 1
+                  }}
+            />
+        </>
 
-            fillRule="evenodd"
-            d={path}
-            vectorEffect="none"
-            id="d1"
-            style={{
-                stroke: ("#000000"),
-                strokeWidth: 1,
-                strokeMiterlimit: 4,
-                strokeDasharray: "none",
-                strokeOpacity: 1,
-                fill: !bgOver ? bgColor : ("#252525") ,
-                fillOpacity:  !bgOver ? (1- (opacity < 0 ? opacity * -1 : opacity) + 0.5) : 1
-            }}
-        />
     )
 }
 const SVGComponent = (props) => {
 
     const paths = pathsByDistrict();
-    const results = resultsF();
+    const results = {
+        1974: results1974(),
+        1976: results1976()
+    };
+
 
     const window = useWindowDimensions()
 
     const [scale, setScale] = useState(0.8)
     const [xShift, setXShift] = useState(0)
     const [yShift, setYShift] = useState(0)
+
+    const [year, setYear] = useState(1974)
 
     const startingW = 2277.2002;
     const startingH = 2162.1324
@@ -108,21 +122,35 @@ const SVGComponent = (props) => {
         <div className={" w-screen h-screen fixed flex justify-center overflow-clip "}>
 
             <div className={"fixed top-1 left-1 z-30 flex flex-row space-x-1 text-white"}>
+
+                <div className={"relative bg-green-800 p-1 flex flex-row rounded"} >
+                    <p className={"p-1 text-yellow-400"}><GiTexas /></p>
+                </div>
                 <div className={"relative bg-stone-800 p-1 flex flex-row rounded"} >
                     <button onClick={()=>setScale(scale+0.1)} className={" p-1 "}><FaPlus /></button>
                     <button onClick={()=>setScale(scale-0.1)} className={" p-1"}><FaMinus /></button>
                 </div>
 
-
                 <div className={"relative bg-stone-800 p-1 flex flex-row rounded "} >
-                    <button onClick={()=>setXShift(xShift-100)} className={" p-1"}><FaArrowLeft /></button>
-                    <button onClick={()=>setXShift(xShift+100)} className={" p-1"}><FaArrowRight /></button>
+                    <button onClick={()=>setXShift(xShift-(window.width/10))} className={" p-1"}><FaArrowLeft /></button>
+                    <button onClick={()=>setXShift(xShift+(window.width/10))} className={" p-1"}><FaArrowRight /></button>
                 </div>
 
                 <div className={"relative bg-stone-800 p-1 flex flex-row rounded "} >
-                    <button onClick={()=>setYShift(yShift-100)} className={" p-1"}><FaArrowUp /></button>
-                    <button onClick={()=>setYShift(yShift+100)} className={" p-1"}><FaArrowDown /></button>
+                    <button onClick={()=>setYShift(yShift-(window.height/10))} className={" p-1"}><FaArrowUp /></button>
+                    <button onClick={()=>setYShift(yShift+(window.height/10))} className={" p-1"}><FaArrowDown /></button>
                 </div>
+            </div>
+
+
+            <div className={"fixed bottom-1 left-1 z-30 flex flex-row space-x-1 text-white"}>
+
+                <Selector
+                    leftAction={()=>setYear(year-2)}
+                    rightAction={()=>setYear(year+2)}
+                    label={`${year}`}>
+                </Selector>
+
             </div>
 
 
@@ -153,30 +181,30 @@ const SVGComponent = (props) => {
                 {...props}
             >
                     <g >
-                        <D path={ paths["1"].path} results={ results["1"] } />
-                        <D path={ paths["2"].path} results={ results["2"] }/>
-                        <D path={ paths["3"].path} results={ results["3"] }/>
-                        <D path={ paths["4"].path} results={ results["4"] }/>
-                        <D path={ paths["5"].path} results={ results["5"] }/>
-                        <D path={ paths["6"].path} results={ results["6"] }/>
-                        <D path={ paths["7"].path} results={ results["7"] }/>
-                        <D path={ paths["8"].path} results={ results["8"] }/>
-                        <D path={ paths["9"].path} results={ results["9"] }/>
-                        <D path={ paths["10"].path} results={ results["10"] }/>
-                        <D path={ paths["11"].path} results={ results["11"] }/>
-                        <D path={ paths["12"].path} results={ results["12"] }/>
-                        <D path={ paths["13"].path} results={ results["13"] }/>
-                        <D path={ paths["14"].path} results={ results["14"] }/>
-                        <D path={ paths["15"].path} results={ results["15"] }/>
-                        <D path={ paths["16"].path} results={ results["16"] }/>
-                        <D path={ paths["17"].path} results={ results["17"] }/>
-                        <D path={ paths["18"].path} results={ results["18"] }/>
-                        <D path={ paths["19"].path} results={ results["19"] }/>
-                        <D path={ paths["20"].path} results={ results["20"] }/>
-                        <D path={ paths["21"].path} results={ results["21"] }/>
-                        <D path={ paths["22"].path} results={ results["22"] }/>
-                        <D path={ paths["23"].path} results={ results["23"] }/>
-                        <D path={ paths["24"].path} results={ results["24"] }/>
+                        <D path={ paths["1"].path} results={ results[`${year}`]["1"] } />
+                        <D path={ paths["2"].path} results={ results[`${year}`]["2"] }/>
+                        <D path={ paths["3"].path} results={ results[`${year}`]["3"] }/>
+                        <D path={ paths["4"].path} results={ results[`${year}`]["4"] }/>
+                        <D path={ paths["5"].path} results={ results[`${year}`]["5"] }/>
+                        <D path={ paths["6"].path} results={ results[`${year}`]["6"] }/>
+                        <D path={ paths["7"].path} results={ results[`${year}`]["7"] }/>
+                        <D path={ paths["8"].path} results={ results[`${year}`]["8"] }/>
+                        <D path={ paths["9"].path} results={ results[`${year}`]["9"] }/>
+                        <D path={ paths["10"].path} results={ results[`${year}`]["10"] }/>
+                        <D path={ paths["11"].path} results={ results[`${year}`]["11"] }/>
+                        <D path={ paths["12"].path} results={ results[`${year}`]["12"] }/>
+                        <D path={ paths["13"].path} results={ results[`${year}`]["13"] }/>
+                        <D path={ paths["14"].path} results={ results[`${year}`]["14"] }/>
+                        <D path={ paths["15"].path} results={ results[`${year}`]["15"] }/>
+                        <D path={ paths["16"].path} results={ results[`${year}`]["16"] }/>
+                        <D path={ paths["17"].path} results={ results[`${year}`]["17"] }/>
+                        <D path={ paths["18"].path} results={ results[`${year}`]["18"] }/>
+                        <D path={ paths["19"].path} results={ results[`${year}`]["19"] }/>
+                        <D path={ paths["20"].path} results={ results[`${year}`]["20"] }/>
+                        <D path={ paths["21"].path} results={ results[`${year}`]["21"] }/>
+                        <D path={ paths["22"].path} results={ results[`${year}`]["22"] }/>
+                        <D path={ paths["23"].path} results={ results[`${year}`]["23"] }/>
+                        <D path={ paths["24"].path} results={ results[`${year}`]["24"] }/>
                     </g>
 
             </svg>
