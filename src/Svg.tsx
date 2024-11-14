@@ -83,7 +83,7 @@ const D = ({path, results , index, setHover}:pD) =>{
                       strokeMiterlimit: 1,
                       strokeDasharray: "none",
                       strokeOpacity: 1,
-                      fill: !bgOver ? bgColor : ("#252525") ,
+                      fill: !bgOver ? bgColor : ("#444444") ,
                       fillOpacity:  !bgOver ? (1- (opacity < 0 ? opacity * -1 : opacity) + 0.5) : 1
                   }}
             ></path>
