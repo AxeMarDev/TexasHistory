@@ -1,12 +1,27 @@
+//  -proj +init=EPSG:3857 for projection
+
 import * as React from "react";
-import {useEffect, useState} from "react";
-import pathsByDistrict from "./1974paths.tsx";
+import {SetStateAction, useEffect, useRef, useState} from "react";
+
+import paths1970 from "./1970paths.tsx";
+import paths1972 from "./1972paths.tsx";
+import paths1974 from "./1974paths.tsx";
+import paths1982 from "./1982paths.tsx";
+import paths1984 from "./1984paths.tsx";
+import results1968 from "./1968results.ts";
 import results1974 from "./1974results.ts";
 import results1976 from "./1976results.ts";
+import results1978 from "./1978results.ts";
+import results1980 from "./1980results.ts";
+import results1982 from "./1982results.ts";
+import results1984 from "./1984results.ts";
+import results1986, {pResult} from "./1986results.ts";
+
 import {FaArrowDown, FaArrowLeft, FaArrowRight, FaArrowUp, FaMinus, FaPlus} from "react-icons/fa";
 import {ImEnter} from "react-icons/im";
 import {GiTexas} from "react-icons/gi";
 import Selector from "./components/Selector.tsx";
+import HoverCard from "./components/HoverCard.tsx";
 
 const useWindowDimensions = () => {
     const [windowDimensions, setWindowDimensions] = useState({
@@ -29,73 +44,112 @@ const useWindowDimensions = () => {
 };
 
 
-type pD = { path:string, results:number[]}
-const D = ({path, results }:pD) =>{
+type pD = { path:string, results:pResult, index:number, setHover:React.Dispatch<SetStateAction<number>>}
+const D = ({path, results , index, setHover}:pD) =>{
 
-    const opacity = ((results[1] - results[0])/100)
+    const opacity = ((results.results[1] - results.results[0])/100)
 
     const window = useWindowDimensions()
 
-    const bgColor = ((results[0] - results[1] <= 0) ? ( "#ff7373"):("#6f9bff"))
+    const bgColor = ((results.results[0] - results.results[1] <= 0) ? ( "#ff7373"):("#6f9bff"))
     const [bgOver,setBgOver] = useState( false )
 
     const [isDisplay , setIsDisplay] = useState(false)
     const handleMouseEnter = ()=>{
         setIsDisplay(true)
         setBgOver(true)
+        setHover(index)
     }
 
     const handleMouseLeave = ()=>{
         setIsDisplay(false)
         setBgOver(false)
+        setHover(-1)
     }
-
-
 
 
     return(
         <>
+
             <path onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
+
                   fillRule="evenodd"
                   d={path}
                   vectorEffect="none"
                   id="d1"
                   style={{
                       stroke: ("#000000"),
-                      strokeWidth: 1,
-                      strokeMiterlimit: 4,
+                      strokeWidth: 0.5,
+                      strokeMiterlimit: 1,
                       strokeDasharray: "none",
                       strokeOpacity: 1,
                       fill: !bgOver ? bgColor : ("#252525") ,
                       fillOpacity:  !bgOver ? (1- (opacity < 0 ? opacity * -1 : opacity) + 0.5) : 1
                   }}
-            />
+            ></path>
         </>
 
     )
 }
 const SVGComponent = (props) => {
 
-    const paths = pathsByDistrict();
     const results = {
-        1974: results1974(),
-        1976: results1976()
+        1968: results1986(),
+        1970: results1986(),
+        1972: results1986(),
+        1974: results1986(),
+        1976: results1986(),
+        1978: results1986(),
+        1980: results1986(),
+        1982: results1986(),
+        1984: results1986(),
+        1986: results1986(),
     };
+
+    const paths = {
+        1968: paths1970(),
+        1970: paths1970(),
+        1972: paths1972(),
+        1974: paths1974(),
+        1976: paths1974(),
+        1978: paths1974(),
+        1980: paths1974(),
+        1982: paths1982(),
+        1984: paths1984(),
+        1986: paths1984(),
+    }
+
+    const  pathAdjusments= {
+        1968:  `1 1 ${2277.2002*0.35} ${2162.1324*0.35}`,
+        1970:  `1 1 ${2277.2002*0.35} ${2162.1324*0.35}`,
+        1972:  `1 1 ${2277.2002*0.35} ${2162.1324*0.35}`,
+        1974: "615 169 2277.2002 2162.1324",
+        1976: "615 169 2277.2002 2162.1324",
+        1978: "615 169 2277.2002 2162.1324",
+        1980: "615 169 2277.2002 2162.1324",
+        1982: "610 172 2277.2002 2162.1324",
+        1984: "189 130 2345.516206 2226.996372",
+        1986: "189 130 2345.516206 2226.996372",
+    }
 
 
     const window = useWindowDimensions()
+    const windowShiftx = window.width/10;
+    const windowShifty = window.height/10;
+
 
     const [scale, setScale] = useState(0.8)
     const [xShift, setXShift] = useState(0)
     const [yShift, setYShift] = useState(0)
 
-    const [year, setYear] = useState(1974)
+    const [year, setYear] = useState(1986)
 
     const startingW = 2277.2002;
     const startingH = 2162.1324
 
     const [isDragging, setIsDragging] = useState(false);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
+
     const handleMouseDown = (e) => {
         // Start dragging and record initial position
         setIsDragging(true);
@@ -117,9 +171,21 @@ const SVGComponent = (props) => {
     };
 
 
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+
+    const handleMouseMoveDiv = (e) => {
+        setPosition({
+            x: e.clientX,
+            y: e.clientY
+        });
+    };
+
+    const [ activeHover , setActiveHover ] = useState(-1)
 
     return  (
-        <div className={" w-screen h-screen fixed flex justify-center overflow-clip "}>
+        <div className={" w-screen h-screen fixed flex justify-center overflow-clip "} onMouseMove={handleMouseMoveDiv} >
+
+            <HoverCard activeHover={activeHover} position={position} results={results} year={year}/>
 
             <div className={"fixed top-1 left-1 z-30 flex flex-row space-x-1 text-white"}>
 
@@ -132,13 +198,13 @@ const SVGComponent = (props) => {
                 </div>
 
                 <div className={"relative bg-stone-800 p-1 flex flex-row rounded "} >
-                    <button onClick={()=>setXShift(xShift-(window.width/10))} className={" p-1"}><FaArrowLeft /></button>
-                    <button onClick={()=>setXShift(xShift+(window.width/10))} className={" p-1"}><FaArrowRight /></button>
+                    <button onClick={()=>setXShift(xShift-windowShiftx)} className={" p-1"}><FaArrowLeft /></button>
+                    <button onClick={()=>setXShift(xShift+windowShiftx)} className={" p-1"}><FaArrowRight /></button>
                 </div>
 
                 <div className={"relative bg-stone-800 p-1 flex flex-row rounded "} >
-                    <button onClick={()=>setYShift(yShift-(window.height/10))} className={" p-1"}><FaArrowUp /></button>
-                    <button onClick={()=>setYShift(yShift+(window.height/10))} className={" p-1"}><FaArrowDown /></button>
+                    <button onClick={()=>setYShift(yShift-windowShifty)} className={" p-1"}><FaArrowUp /></button>
+                    <button onClick={()=>setYShift(yShift+windowShifty)} className={" p-1"}><FaArrowDown /></button>
                 </div>
             </div>
 
@@ -146,8 +212,8 @@ const SVGComponent = (props) => {
             <div className={"fixed bottom-1 left-1 z-30 flex flex-row space-x-1 text-white"}>
 
                 <Selector
-                    leftAction={()=>setYear(year-2)}
-                    rightAction={()=>setYear(year+2)}
+                    leftAction={()=>setYear(year-2 < 1986 ? 1986 : year-2 )}
+                    rightAction={()=>setYear(year+2 > 1986 ? 1986 : year+2)}
                     label={`${year}`}>
                 </Selector>
 
@@ -156,15 +222,15 @@ const SVGComponent = (props) => {
 
 
             <svg
-                className={""}
-                viewBox={"615 169 2277.2002 2162.1324"}
+                className={"relative"}
+                viewBox={pathAdjusments[`${year}`]}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 style={{
-                    position: 'relative',
+
                     top: `${yShift}px`,  // Shift down
-                    left: `${xShift}px`, // Shift right
+                    left: `${xShift-windowShiftx/2}px`, // Shift right
                     transformOrigin: '50% 50%',
                     transform: ` scale(${scale})`,
 
@@ -180,31 +246,15 @@ const SVGComponent = (props) => {
                 xmlns:dc="http://purl.org/dc/elements/1.1/"
                 {...props}
             >
+
                     <g >
-                        <D path={ paths["1"].path} results={ results[`${year}`]["1"] } />
-                        <D path={ paths["2"].path} results={ results[`${year}`]["2"] }/>
-                        <D path={ paths["3"].path} results={ results[`${year}`]["3"] }/>
-                        <D path={ paths["4"].path} results={ results[`${year}`]["4"] }/>
-                        <D path={ paths["5"].path} results={ results[`${year}`]["5"] }/>
-                        <D path={ paths["6"].path} results={ results[`${year}`]["6"] }/>
-                        <D path={ paths["7"].path} results={ results[`${year}`]["7"] }/>
-                        <D path={ paths["8"].path} results={ results[`${year}`]["8"] }/>
-                        <D path={ paths["9"].path} results={ results[`${year}`]["9"] }/>
-                        <D path={ paths["10"].path} results={ results[`${year}`]["10"] }/>
-                        <D path={ paths["11"].path} results={ results[`${year}`]["11"] }/>
-                        <D path={ paths["12"].path} results={ results[`${year}`]["12"] }/>
-                        <D path={ paths["13"].path} results={ results[`${year}`]["13"] }/>
-                        <D path={ paths["14"].path} results={ results[`${year}`]["14"] }/>
-                        <D path={ paths["15"].path} results={ results[`${year}`]["15"] }/>
-                        <D path={ paths["16"].path} results={ results[`${year}`]["16"] }/>
-                        <D path={ paths["17"].path} results={ results[`${year}`]["17"] }/>
-                        <D path={ paths["18"].path} results={ results[`${year}`]["18"] }/>
-                        <D path={ paths["19"].path} results={ results[`${year}`]["19"] }/>
-                        <D path={ paths["20"].path} results={ results[`${year}`]["20"] }/>
-                        <D path={ paths["21"].path} results={ results[`${year}`]["21"] }/>
-                        <D path={ paths["22"].path} results={ results[`${year}`]["22"] }/>
-                        <D path={ paths["23"].path} results={ results[`${year}`]["23"] }/>
-                        <D path={ paths["24"].path} results={ results[`${year}`]["24"] }/>
+                        <>{
+                            paths[`${year}`].map((path, index)=>{
+
+
+                                return <D path={ path } results={ results[`${year}`][`${index+1}`] } index={index} setHover={setActiveHover}/>
+                            } )
+                        }</>
                     </g>
 
             </svg>
