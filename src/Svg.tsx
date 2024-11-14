@@ -1,24 +1,16 @@
 //  -proj +init=EPSG:3857 for projection
 
 import * as React from "react";
-import {SetStateAction, useEffect, useRef, useState} from "react";
+import {SetStateAction, useEffect, useState} from "react";
 
 import paths1970 from "./1970paths.tsx";
 import paths1972 from "./1972paths.tsx";
 import paths1974 from "./1974paths.tsx";
 import paths1982 from "./1982paths.tsx";
 import paths1984 from "./1984paths.tsx";
-import results1968 from "./1968results.ts";
-import results1974 from "./1974results.ts";
-import results1976 from "./1976results.ts";
-import results1978 from "./1978results.ts";
-import results1980 from "./1980results.ts";
-import results1982 from "./1982results.ts";
-import results1984 from "./1984results.ts";
 import results1986, {pResult} from "./1986results.ts";
 
 import {FaArrowDown, FaArrowLeft, FaArrowRight, FaArrowUp, FaMinus, FaPlus} from "react-icons/fa";
-import {ImEnter} from "react-icons/im";
 import {GiTexas} from "react-icons/gi";
 import Selector from "./components/Selector.tsx";
 import HoverCard from "./components/HoverCard.tsx";
@@ -49,20 +41,17 @@ const D = ({path, results , index, setHover}:pD) =>{
 
     const opacity = ((results.results[1] - results.results[0])/100)
 
-    const window = useWindowDimensions()
-
     const bgColor = ((results.results[0] - results.results[1] <= 0) ? ( "#ff7373"):("#6f9bff"))
     const [bgOver,setBgOver] = useState( false )
 
-    const [isDisplay , setIsDisplay] = useState(false)
+
     const handleMouseEnter = ()=>{
-        setIsDisplay(true)
+
         setBgOver(true)
         setHover(index)
     }
 
     const handleMouseLeave = ()=>{
-        setIsDisplay(false)
         setBgOver(false)
         setHover(-1)
     }
@@ -144,8 +133,8 @@ const SVGComponent = (props) => {
 
     const [year, setYear] = useState(1986)
 
-    const startingW = 2277.2002;
-    const startingH = 2162.1324
+    //const startingW = 2277.2002;
+    //const startingH = 2162.1324
 
     const [isDragging, setIsDragging] = useState(false);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -235,15 +224,9 @@ const SVGComponent = (props) => {
                     transform: ` scale(${scale})`,
 
                 }}
-                sodipodi:docname="1976 Texas US House.svg"
-                inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
-                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-                xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+
                 xmlns="http://www.w3.org/2000/svg"
                 xmlns:svg="http://www.w3.org/2000/svg"
-                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                xmlns:cc="http://creativecommons.org/ns#"
-                xmlns:dc="http://purl.org/dc/elements/1.1/"
                 {...props}
             >
 
